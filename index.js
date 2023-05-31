@@ -101,6 +101,30 @@ async function getPrice(){
 
 }
 
+async function getQuote(account){
+  console.log("getting quote")
+
+  if (!currentTrade.from || !currentTrade.to || !document.getElementById("from_amount").value) return;
+  let amount = Number(document.getElementById("from_amount").value * 10 ** currentTrade.from.decimals);
+
+  const params = {
+    sellToken: currentTrade.from.address,
+    buyToken: currentTrade.to.address,
+    sellAmount: amount,
+    takerAddress: account,
+  }
+
+  const response = await fetch(`https://api.0x.org/swap/v1/quote?${qs.stringify(params)}`);
+  
+  swapQuoteJSON = await response.json();
+  console.log("Price: ", swapPriceJSON);
+
+  document.getElementById("to_amount").value = swapQuoteJSON.buyAmount / (10 ** currentTrade.to.decimals);
+  document.getElementById("gas_estimate").innerHTML = swapQuoteJSON.estimatedGas;
+
+  return swapQuoteJSON;
+}
+
 init();
 
 document.getElementById("login_button").onclick = connect;
